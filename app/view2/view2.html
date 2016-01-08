@@ -1,26 +1,31 @@
 <div  class="container">
-  <h1>Clientes</h1>
-  <hr>
-  <form role="form" name="forma">
-    <div class="form-group" ng-class="{'has-error': forma.nombreU.$invalid, 'has-success': forma.nombreU.$valid}">
-      <label for="inputNombre">Nombre</label>
-      <input id="inputNombre" type="text" class="form-control" placeholder="Nombre" name="nombreU" ng-model="usuario.nombre" required>
-    </div>
-    <div class="form-group" ng-class="{'has-error': forma.emailU.$invalid, 'has-success': forma.emailU.$valid}">
-      <label for="inputEmail">Email</label>
-      <input id="inputEmail" type="email" class="form-control" placeholder="email" name="emailU" ng-model="usuario.email" required>
-      <div ng-show="forma.emailU.$dirty && forma.emailU.$invalid">
-        <p class="help-block text-danger" ng-show="forma.emailU.$error.required">Campo obligatorio</p>
-        <p class="help-block text-danger" ng-show="forma.emailU.$error.email">Email invalido</p>
+  <script type="text/ng-template" id="nuevoClienteModalContent.html">
+    <form class="modal-body" role="form" name="clientesForm">
+      <div class="form-group" ng-class="{'has-error': clientesForm.nombre.$invalid, 'has-success': clientesForm.nombre.$valid}">
+        <label for="inputNombre">Nombre</label>
+        <input id="inputNombre" type="text" class="form-control" placeholder="Nombre" name="nombre" ng-model="producto.nombre" required>
       </div>
+      <div class="form-group" ng-class="{'has-error': clientesForm.precio.$invalid, 'has-success': clientesForm.precio.$valid}">
+        <label for="inputNombre">Precio</label>
+        <input id="inputPrecio" type="number" class="form-control" placeholder="Precio" name="precio" ng-model="producto.precio" required>
+      </div>
+      <button type="submit" class="btn btn-success" ng-disabled="clientesForm.$invalid" ng-click="guardar()">Guardar</button>
+      <button type="button" class="btn" ng-click="cancelar()">Cancelar</button>
+    </form>
+  </script>
+  <script type="text/ng-template" id="eliminarProductoModalContent.html">
+    <div class="modal-header">
+      <h3 class="modal-title">Eliminar producto</h3>
     </div>
-    <div class="checkbox">
-      <label>
-        <input type="checkbox" name="aceptoU" ng-model="usuario.acepto" required> Acepto.
-      </label>
+    <div class="modal-body">
+      <p>¿Estás seguro de querer borrar el producto?</p>
     </div>
-    <button class="btn btn-success" ng-disabled="forma.$invalid">Registrar</button>
-  </form>
+    <div class="modal-footer">
+      <button class="btn btn-success" type="button" ng-click="ok()">Ok</button>
+      <button class="btn" type="button" ng-click="cancelar()">Cancelar</button>
+    </div>
+  </script>
+  <h1>Clientes</h1>
   <hr>
   <div class="panel panel-primary">
     <div class="panel-body">
@@ -46,4 +51,5 @@
       </table>
     </div>
   </div>
+  <button class="btn btn-primary pull-right" ng-click="prepararNuevoCliente()">Nuevo cliente</button>
 </div>
