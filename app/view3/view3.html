@@ -1,5 +1,5 @@
 <div  class="container">
-  <h1>Clientes</h1>
+  <h1>Productos</h1>
   <hr>
   <form role="form" name="forma">
     <div class="form-group" ng-class="{'has-error': forma.nombreU.$invalid, 'has-success': forma.nombreU.$valid}">
@@ -27,20 +27,16 @@
       <table class="table table-striped">
         <thead>
         <tr>
-          <th>NIF</th>
           <th>Nombre</th>
-          <th>Email</th>
-          <th>Dirección</th>
-          <th>Localidad</th>
+          <th>Imagen</th>
+          <th>Precio</th>
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="cliente in clientes">
-          <td>{{cliente.nif}}</td>
-          <td>{{cliente.nombre}} {{cliente.apellido1}} {{cliente.apellido2}}</td>
-          <td>{{cliente.email}}</td>
-          <td>{{cliente.direccion}}</td>
-          <td>{{cliente.ciudad.nombreCiudad}} ({{cliente.ciudad.nombreProvincia}}-{{cliente.ciudad.nombrePais}})</td>
+        <tr ng-repeat="producto in productos">
+          <td>{{producto.nombre}}</td>
+          <td>{{producto.imagen}}</td>
+          <td>{{producto.precio}}</td>
         </tr>
         </tbody>
       </table>

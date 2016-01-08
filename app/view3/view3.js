@@ -1,20 +1,20 @@
 'use strict';
 
-angular.module('myApp.view1', ['ngRoute'])
+angular.module('myApp.view3', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/view1', {
-    templateUrl: 'view1/view1.html',
-    controller: 'View1Ctrl'
+  $routeProvider.when('/view3', {
+    templateUrl: 'view3/view3.html',
+    controller: 'View3Ctrl'
   });
 }])
 
-.controller('View1Ctrl', ['$scope', '$http', function($scope, $http) {
+.controller('View3Ctrl', ['$scope', '$http', function($scope, $http) {
       //$scope.formData = {};
 
-      $http.get('http://localhost:8080/gestionventas/ventas')
+      $http.get('http://localhost:8080/gestionventas/productos')
           .success(function(data) {
-            $scope.ventas = data;
+            $scope.productos = data;
             console.log(data)
           })
           .error(function(data) {

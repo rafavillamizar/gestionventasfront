@@ -1,1 +1,47 @@
-<p>This is the partial for view 1.</p>
+<div  class="container">
+    <h1>Ventas</h1>
+    <hr>
+    <form role="form" name="forma">
+        <div class="form-group" ng-class="{'has-error': forma.nombreU.$invalid, 'has-success': forma.nombreU.$valid}">
+            <label for="inputNombre">Nombre</label>
+            <input id="inputNombre" type="text" class="form-control" placeholder="Nombre" name="nombreU" ng-model="usuario.nombre" required>
+        </div>
+        <div class="form-group" ng-class="{'has-error': forma.emailU.$invalid, 'has-success': forma.emailU.$valid}">
+            <label for="inputEmail">Email</label>
+            <input id="inputEmail" type="email" class="form-control" placeholder="email" name="emailU" ng-model="usuario.email" required>
+            <div ng-show="forma.emailU.$dirty && forma.emailU.$invalid">
+                <p class="help-block text-danger" ng-show="forma.emailU.$error.required">Campo obligatorio</p>
+                <p class="help-block text-danger" ng-show="forma.emailU.$error.email">Email invalido</p>
+            </div>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" name="aceptoU" ng-model="usuario.acepto" required> Acepto.
+            </label>
+        </div>
+        <button class="btn btn-success" ng-disabled="forma.$invalid">Registrar</button>
+    </form>
+    <hr>
+    <div class="panel panel-primary">
+        <div class="panel-body">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Id venta</th>
+                    <th>NIF Cliente</th>
+                    <th>Nombre Cliente</th>
+                    <th>Fecha</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="venta in ventas">
+                    <td>{{venta.ventaId}}</td>
+                    <td>{{venta.cliente.nif}}</td>
+                    <td>{{venta.cliente.nombre}} {{venta.cliente.apellido1}} {{venta.cliente.apellido2}}</td>
+                    <td>{{venta.fechaVenta}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
