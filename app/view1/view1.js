@@ -2,47 +2,237 @@
 
 angular.module('myApp.view1', ['ngRoute'])
 
-.config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/view1', {
-    templateUrl: 'view1/view1.html',
-    controller: 'View1Ctrl'
-  });
-}])
+    .config(['$routeProvider', function ($routeProvider) {
+        $routeProvider.when('/view1', {
+            templateUrl: 'view1/view1.html',
+            controller: 'View1Ctrl'
+        });
+    }])
 
-.controller('View1Ctrl', ['$scope', '$http', function($scope, $http) {
-      //$scope.formData = {};
+    .controller('View1Ctrl', ['$scope', '$http', '$uibModal', function ($scope, $http, $uibModal) {
+        $scope.venta = {};
 
-      $http.get('http://localhost:8080/gestionventas/ventas')
-          .success(function(data) {
-            $scope.ventas = data;
-            console.log(data)
-          })
-          .error(function(data) {
-            console.log('Error: ' + data);
-          });
+        $scope.prepararNuevaVenta = function () {
+            $scope.venta = {
+                fechaVenta: new Date(),
+                cliente: {nif: ""}
+            };
+            $scope.abrirDetalleVenta();
+        }
 
-      // Cuando se añade un nuevo TODO, manda el texto a la API
-      //$scope.createTodo = function(){
-      //  $http.post('http://localhost:8080/gestionventas/ventas', $scope.formData)
-      //      .success(function(data) {
-      //        $scope.formData = {};
-      //        $scope.todos = data;
-      //        console.log(data);
-      //      })
-      //      .error(function(data) {
-      //        console.log('Error:' + data);
-      //      });
-      //};
+        $scope.prepararEdicionVenta = function (venta) {
+            $scope.venta = venta;
+            $scope.abrirDetalleVenta();
+        }
 
-      // Borra un TODO despues de checkearlo como acabado
-      //$scope.deleteTodo = function(id) {
-      //  $http.delete('http://localhost:8080/gestionventas/ventas/' + id)
-      //      .success(function(data) {
-      //        $scope.todos = data;
-      //        console.log(data);
-      //      })
-      //      .error(function(data) {
-      //        console.log('Error:' + data);
-      //      });
-      //};
-}]);
+        $scope.prepararEliminarVenta = function (venta) {
+            $scope.venta = venta;
+            $scope.abrirEliminarVenta();
+        }
+
+        $scope.obtenerVentas = function () {
+            $http.get('http://192.168.1.136:8080/gestionventas/ventas')
+                .success(function (data) {
+                    $scope.ventas = data;
+                    console.log(data);
+                })
+                .error(function (data) {
+                    console.log('Error: ' + data);
+                });
+        };
+
+        $scope.guardarVenta = function (venta) {
+            $http.post('http://192.168.1.136:8080/gestionventas/ventas', venta)
+                .success(function (data) {
+                    $scope.obtenerVentas();
+                })
+                .error(function (data) {
+                    console.log('Error:' + data);
+                });
+        };
+
+        $scope.eliminarVenta = function (ventaId) {
+            $http.delete('http://192.168.1.136:8080/gestionventas/ventas/' + ventaId)
+                .success(function (data) {
+                    $scope.obtenerVentas();
+                })
+                .error(function (data) {
+                    console.log('Error:' + data);
+                });
+        };
+
+        $scope.abrirDetalleVenta = function () {
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'nuevaVentaModalContent.html',
+                controller: 'NuevaVentaModalInstanceCtrl',
+                size: 'lg',
+                resolve: {
+                    venta: function () {
+                        return $scope.venta;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (venta) {
+                $scope.guardarVenta(venta);
+            });
+        };
+
+        $scope.abrirEliminarVenta = function () {
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'eliminarVentaModalContent.html',
+                controller: 'EliminarVentaModalInstanceCtrl',
+                size: 'sm',
+                resolve: {
+                    venta: function () {
+                        return $scope.venta;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (venta) {
+                $scope.eliminarVenta(venta.ventaId);
+            });
+        };
+
+        $scope.obtenerVentas();
+    }])
+
+    .controller('NuevaVentaModalInstanceCtrl', ['$scope', '$uibModalInstance', '$http', 'venta', function ($scope, $uibModalInstance, $http, venta) {
+        $scope.venta = venta;
+
+        $scope.guardar = function () {
+            $scope.venta.fechaVenta = $scope.dt.getTime();
+            $uibModalInstance.close($scope.venta);
+        };
+
+        $scope.cancelar = function () {
+            $uibModalInstance.dismiss('cancel');
+        };
+
+        $scope.obtenerClientes = function (valor) {
+            return $http.get('http://192.168.1.136:8080/gestionventas/clientes', {
+                params: {nif: valor}
+            }).success(function (response) {
+                return response.data.map(function (item) {
+                    return item;
+                });
+            });
+        };
+
+        $scope.obtenerDetallesVenta = function (ventaId) {
+            return $http.get('http://192.168.1.136:8080/gestionventas/ventas/' + ventaId + '/detalles')
+                .success(function (data) {
+                    $scope.detalles = data;
+                });
+        };
+
+        $scope.onSelect = function ($item, $model, $label) {
+            $scope.$item = $item;
+            $scope.$model = $model;
+            $scope.$label = $label;
+
+            $scope.venta.cliente = $scope.$item;
+        };
+
+        $scope.obtenerDetallesVenta($scope.venta.ventaId);
+
+        //Componente datePicker
+        $scope.today = function() {
+            $scope.dt = new Date();
+        };
+        $scope.today();
+
+        $scope.clear = function() {
+            $scope.dt = null;
+        };
+
+        // Disable weekend selection
+        $scope.disabled = function(date, mode) {
+            return false;
+        };
+
+        $scope.toggleMin = function() {
+            $scope.minDate = $scope.minDate ? null : new Date();
+        };
+
+        $scope.toggleMin();
+        $scope.maxDate = new Date(2020, 5, 22);
+
+        $scope.open1 = function() {
+            $scope.popup1.opened = true;
+        };
+
+        $scope.open2 = function() {
+            $scope.popup2.opened = true;
+        };
+
+        $scope.setDate = function(year, month, day) {
+            $scope.dt = new Date(year, month, day);
+        };
+
+        $scope.dateOptions = {
+            formatYear: 'yy',
+            startingDay: 1
+        };
+
+        $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
+        $scope.format = $scope.formats[0];
+        $scope.altInputFormats = ['M!/d!/yyyy'];
+
+        $scope.popup1 = {
+            opened: false
+        };
+
+        $scope.popup2 = {
+            opened: false
+        };
+
+        var tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        var afterTomorrow = new Date();
+        afterTomorrow.setDate(tomorrow.getDate() + 1);
+        $scope.events =
+            [
+                {
+                    date: tomorrow,
+                    status: 'full'
+                },
+                {
+                    date: afterTomorrow,
+                    status: 'partially'
+                }
+            ];
+
+        $scope.getDayClass = function(date, mode) {
+            if (mode === 'day') {
+                var dayToCheck = new Date(date).setHours(0,0,0,0);
+
+                for (var i = 0; i < $scope.events.length; i++) {
+                    var currentDay = new Date($scope.events[i].date).setHours(0,0,0,0);
+
+                    if (dayToCheck === currentDay) {
+                        return $scope.events[i].status;
+                    }
+                }
+            }
+
+            return '';
+        };
+    }])
+
+    .controller('EliminarVentaModalInstanceCtrl', ['$scope', '$uibModalInstance', 'venta', function ($scope, $uibModalInstance, venta) {
+        $scope.venta = venta;
+
+        $scope.ok = function () {
+            $uibModalInstance.close($scope.venta);
+        };
+
+        $scope.cancelar = function () {
+            $uibModalInstance.dismiss('cancel');
+        };
+    }]);

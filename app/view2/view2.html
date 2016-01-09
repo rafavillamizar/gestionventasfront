@@ -1,24 +1,48 @@
 <div  class="container">
   <script type="text/ng-template" id="nuevoClienteModalContent.html">
     <form class="modal-body" role="form" name="clientesForm">
+      <div class="form-group" ng-class="{'has-error': clientesForm.nif.$invalid, 'has-success': clientesForm.nif.$valid}">
+        <label for="inputNif">NIF</label>
+        <input id="inputNif" type="text" class="form-control" placeholder="NIF" name="nif" ng-model="cliente.nif" required>
+      </div>
       <div class="form-group" ng-class="{'has-error': clientesForm.nombre.$invalid, 'has-success': clientesForm.nombre.$valid}">
         <label for="inputNombre">Nombre</label>
-        <input id="inputNombre" type="text" class="form-control" placeholder="Nombre" name="nombre" ng-model="producto.nombre" required>
+        <input id="inputNombre" type="text" class="form-control" placeholder="Nombre" name="nombre" ng-model="cliente.nombre" required>
       </div>
-      <div class="form-group" ng-class="{'has-error': clientesForm.precio.$invalid, 'has-success': clientesForm.precio.$valid}">
-        <label for="inputNombre">Precio</label>
-        <input id="inputPrecio" type="number" class="form-control" placeholder="Precio" name="precio" ng-model="producto.precio" required>
+      <div class="form-group" ng-class="{'has-error': clientesForm.apellido1.$invalid, 'has-success': clientesForm.apellido1.$valid}">
+        <label for="inputApellido1">Primer apellido</label>
+        <input id="inputApellido1" type="text" class="form-control" placeholder="Primer apellido" name="apellido1" ng-model="cliente.apellido1" required>
+      </div>
+      <div class="form-group" ng-class="has-success">
+        <label for="inputApellido2">Segundo apellido</label>
+        <input id="inputApellido2" type="text" class="form-control" placeholder="Segundo apellido" name="apellido2" ng-model="cliente.apellido2">
+      </div>
+      <div class="form-group" ng-class="has-success">
+        <label for="inputEmail">Email</label>
+        <input id="inputEmail" type="email" class="form-control" placeholder="Email" name="email" ng-model="cliente.email">
+      </div>
+      <div class="form-group" ng-class="{'has-error': clientesForm.ciudad.$invalid, 'has-success': clientesForm.ciudad.$valid}">
+        <label for="inputLocalidad">Localización</label>
+        <input id="inputLocalidad" type="text" ng-model="cliente.ciudad" placeholder="Localización" name="ciudad" uib-typeahead="ciudad.nombreLocalizacion for ciudad in obtenerLocalizacion($viewValue)" typeahead-loading="cargandoLocalizaciones" typeahead-no-results="noResultados" class="form-control" typeahead-on-select="onSelect($item, $model, $label)" required>
+        <i ng-show="cargandoLocalizaciones" class="glyphicon glyphicon-refresh"></i>
+        <div ng-show="noResultados">
+          <i class="glyphicon glyphicon-remove"></i> No hay resultados encontrados
+        </div>
+      </div>
+      <div class="form-group" ng-class="has-success">
+        <label for="inputDireccion">Direccion</label>
+        <input id="inputDireccion" type="text" class="form-control" placeholder="Dirección" name="direccion" ng-model="cliente.direccion">
       </div>
       <button type="submit" class="btn btn-success" ng-disabled="clientesForm.$invalid" ng-click="guardar()">Guardar</button>
       <button type="button" class="btn" ng-click="cancelar()">Cancelar</button>
     </form>
   </script>
-  <script type="text/ng-template" id="eliminarProductoModalContent.html">
+  <script type="text/ng-template" id="eliminarClienteModalContent.html">
     <div class="modal-header">
-      <h3 class="modal-title">Eliminar producto</h3>
+      <h3 class="modal-title">Eliminar cliente</h3>
     </div>
     <div class="modal-body">
-      <p>¿Estás seguro de querer borrar el producto?</p>
+      <p>¿Estás seguro de querer borrar el cliente?</p>
     </div>
     <div class="modal-footer">
       <button class="btn btn-success" type="button" ng-click="ok()">Ok</button>
@@ -37,6 +61,8 @@
           <th>Email</th>
           <th>Dirección</th>
           <th>Localidad</th>
+          <th></th>
+          <th></th>
         </tr>
         </thead>
         <tbody>
@@ -45,7 +71,9 @@
           <td>{{cliente.nombre}} {{cliente.apellido1}} {{cliente.apellido2}}</td>
           <td>{{cliente.email}}</td>
           <td>{{cliente.direccion}}</td>
-          <td>{{cliente.ciudad.nombreCiudad}} ({{cliente.ciudad.nombreProvincia}}-{{cliente.ciudad.nombrePais}})</td>
+          <td>{{cliente.ciudad.nombreLocalizacion}}</td>
+          <td><a class="btn" href="" ng-click="prepararEdicionCliente(cliente)"><i class="glyphicon glyphicon-edit"></i></a></td>
+          <td><a class="btn" href="" ng-click="prepararEliminarCliente(cliente)"><i class="glyphicon glyphicon-trash"></i></a></td>
         </tr>
         </tbody>
       </table>
