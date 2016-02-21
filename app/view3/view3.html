@@ -3,11 +3,19 @@
     <form class="modal-body" role="form" name="productosForm">
       <div class="form-group" ng-class="{'has-error': productosForm.nombre.$invalid, 'has-success': productosForm.nombre.$valid}">
         <label for="inputNombre">Nombre</label>
-        <input id="inputNombre" type="text" class="form-control" placeholder="Nombre" name="nombre" ng-model="producto.nombre" required>
+        <input id="inputNombre" type="text" class="form-control" placeholder="Nombre" name="nombre" ng-model="nombre" maxlength="150" required>
       </div>
       <div class="form-group" ng-class="{'has-error': productosForm.precio.$invalid, 'has-success': productosForm.precio.$valid}">
-        <label for="inputNombre">Precio</label>
-        <input id="inputPrecio" type="number" class="form-control" placeholder="Precio" name="precio" ng-model="producto.precio" required>
+        <label for="inputPrecio">Precio</label>
+        <input id="inputPrecio" type="number" class="form-control" placeholder="Precio" name="precio" ng-model="precio" required>
+      </div>
+      <div class="form-group">
+        <label for="inputReferencia">Referencia</label>
+        <input id="inputReferencia" type="text" class="form-control" placeholder="Referencia" name="referencia" ng-model="referencia" maxlength="20" required>
+      </div>
+      <div class="form-group">
+        <label for="inputCaracteristicas">Características</label>
+        <textarea id="inputCaracteristicas" rows="3" class="form-control" placeholder="Características" name="caracteristicas" maxlength="600" ng-model="caracteristicas"></textarea>
       </div>
       <button type="submit" class="btn btn-success" ng-disabled="productosForm.$invalid" ng-click="guardar()">Guardar</button>
       <button type="button" class="btn" ng-click="cancelar()">Cancelar</button>
@@ -29,26 +37,33 @@
   <hr>
   <div class="panel panel-primary">
     <div class="panel-body">
-      <table class="table table-striped">
-        <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Imagen</th>
-          <th>Precio</th>
-          <th></th>
-          <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="producto in productos">
-          <td>{{producto.nombre}}</td>
-          <td>{{producto.imagen}}</td>
-          <td>{{producto.precio}}</td>
-          <td><a class="btn" href="" ng-click="prepararEdicionProducto(producto)"><i class="glyphicon glyphicon-edit"></i></a></td>
-          <td><a class="btn" href="" ng-click="prepararEliminarProducto(producto)"><i class="glyphicon glyphicon-trash"></i></a></td>
-        </tr>
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th>Imagen</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Caracteristicas</th>
+            <th></th>
+            <th></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr ng-repeat="producto in productos">
+            <td class="col-xs-1 col-sm-1"><img ng-src="{{producto.imagenUrl}}" alt="Imagen" ></td>
+            <td class="col-xs-4 col-sm-3">{{producto.nombre}}</td>
+            <td class="col-xs-1 col-sm-1">{{producto.precio}}</td>
+            <td class="col-xs-4 col-sm-4">{{producto.caracteristicas}}</td>
+            <td class="col-xs-1 col-sm-1"><a class="btn" href="" ng-click="prepararEdicionProducto(producto)"><i class="glyphicon glyphicon-edit"></i></a></td>
+            <td class="col-xs-1 col-sm-1"><a class="btn" href="" ng-click="prepararEliminarProducto(producto)"><i class="glyphicon glyphicon-trash"></i></a></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel-footer text-center">
+      <uib-pagination total-items="totalItems" items-per-page="5" ng-model="currentPage" max-size="5" class="pagination-sm" boundary-links="true" ng-change="cambioPaginador()" force-ellipses="true" next-text="Siguiente" previous-text="Anterior" last-text="Último" first-text="Primero"></uib-pagination>
     </div>
   </div>
   <button class="btn btn-primary pull-right" ng-click="prepararNuevoProducto()">Nuevo producto</button>

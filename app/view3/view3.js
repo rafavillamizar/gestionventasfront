@@ -10,12 +10,22 @@ angular.module('myApp.view3', ['ngRoute'])
     }])
 
     .controller('View3Ctrl', ['$scope', '$http', '$uibModal', function ($scope, $http, $uibModal) {
+        $scope.setPage = function (pageNo) {
+            $scope.currentPage = pageNo;
+        };
+
+        $scope.totalItems = 0;
+        $scope.currentPage = 1;
+
         $scope.producto = {};
 
         $scope.prepararNuevoProducto = function () {
             $scope.producto = {
                 nombre: "",
-                precio: ""
+                precio: "",
+                referencia: "",
+                caracteristicas: "",
+                imagen: "pala.jpg"
             };
             $scope.abrirDetalleProducto();
         }
@@ -30,19 +40,18 @@ angular.module('myApp.view3', ['ngRoute'])
             $scope.abrirEliminarProducto();
         }
 
-        $scope.obtenerProductos = function () {
-            $http.get('http://192.168.1.136:8080/gestionventas/productos')
-                .success(function (data) {
-                    $scope.productos = data;
-                    console.log(data);
-                })
-                .error(function (data) {
-                    console.log('Error: ' + data);
-                });
+        $scope.obtenerProductos = function (valor) {
+            return $http.get('http://localhost:8080/gestionventas/productos', {
+                params: {numeroPagina: valor}
+            }).then(function (response) {
+                $scope.totalItems = response.data.totalElementos;
+                $scope.currentPage = response.data.numeroPagina;
+                $scope.productos = response.data.resultado;
+            });
         };
 
         $scope.guardarProducto = function (producto) {
-            $http.post('http://192.168.1.136:8080/gestionventas/productos', producto)
+            $http.post('http://localhost:8080/gestionventas/productos', producto)
                 .success(function (data) {
                     $scope.obtenerProductos();
                 })
@@ -52,7 +61,7 @@ angular.module('myApp.view3', ['ngRoute'])
         };
 
         $scope.eliminarProducto = function(productoId) {
-          $http.delete('http://192.168.1.136:8080/gestionventas/productos/' + productoId)
+          $http.delete('http://localhost:8080/gestionventas/productos/' + productoId)
               .success(function(data) {
                   $scope.obtenerProductos();
               })
@@ -99,13 +108,29 @@ angular.module('myApp.view3', ['ngRoute'])
             });
         };
 
-        $scope.obtenerProductos();
+        $scope.obtenerProductos($scope.bigCurrentPage);
+
+        $scope.cambioPaginador = function() {
+            $scope.obtenerProductos($scope.currentPage);
+        };
     }])
 
     .controller('NuevoProductoModalInstanceCtrl', ['$scope', '$uibModalInstance', 'producto', function ($scope, $uibModalInstance, producto) {
         $scope.producto = producto;
 
+        $scope.nombre = producto.nombre;
+        $scope.precio = producto.precio;
+        $scope.referencia = producto.referencia;
+        $scope.caracteristicas = producto.caracteristicas;
+        $scope.imagen = producto.imagen;
+
         $scope.guardar = function () {
+            $scope.producto.nombre = $scope.nombre;
+            $scope.producto.precio = $scope.precio;
+            $scope.producto.referencia = $scope.referencia;
+            $scope.producto.caracteristicas = $scope.caracteristicas;
+            $scope.producto.imagen = $scope.imagen;
+
             $uibModalInstance.close($scope.producto);
         };
 

@@ -36,7 +36,7 @@ angular.module('myApp.view2', ['ngRoute'])
         }
 
         $scope.obtenerClientes = function () {
-            $http.get('http://192.168.1.136:8080/gestionventas/clientes')
+            $http.get('http://localhost:8080/gestionventas/clientes')
                 .success(function (data) {
                     $scope.clientes = data;
                     console.log(data);
@@ -47,7 +47,7 @@ angular.module('myApp.view2', ['ngRoute'])
         };
 
         $scope.guardarCliente = function (cliente) {
-            $http.post('http://192.168.1.136:8080/gestionventas/clientes', cliente)
+            $http.post('http://localhost:8080/gestionventas/clientes', cliente)
                 .success(function (data) {
                     $scope.obtenerClientes();
                 })
@@ -57,7 +57,7 @@ angular.module('myApp.view2', ['ngRoute'])
         };
 
         $scope.eliminarCliente = function(clienteId) {
-            $http.delete('http://192.168.1.136:8080/gestionventas/clientes/' + clienteId)
+            $http.delete('http://localhost:8080/gestionventas/clientes/' + clienteId)
                 .success(function(data) {
                     $scope.obtenerClientes();
                 })
@@ -119,7 +119,7 @@ angular.module('myApp.view2', ['ngRoute'])
         };
 
         $scope.obtenerLocalizacion = function (valor) {
-            return $http.get('http://192.168.1.136:8080/gestionventas/ciudades', {
+            return $http.get('http://localhost:8080/gestionventas/ciudades', {
                 params: { nombre: valor }
             }).then(function (response) {
                     return response.data.map(function(item) {

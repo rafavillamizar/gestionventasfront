@@ -1,46 +1,68 @@
 <div class="container">
     <script type="text/ng-template" id="nuevaVentaModalContent.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Venta</h3>
+        </div>
         <form class="modal-body" role="form" name="ventasForm">
-            <div class="form-inline">
-                <div class="form-group" ng-class="{'has-error': ventasForm.cliente.$invalid, 'has-success': ventasForm.cliente.$valid}">
-                    <label for="inputCliente">Cliente</label>
-                    <input id="inputCliente" type="text" ng-model="venta.cliente" placeholder="Cliente" name="cliente" uib-typeahead="cliente.nif for cliente in obtenerClientes($viewValue)" typeahead-loading="cargandoClientes" typeahead-no-results="noResultados" class="form-control" typeahead-on-select="onSelect($item, $model, $label)" required>
-                    <i ng-show="cargandoClientes" class="glyphicon glyphicon-refresh"></i>
-                    <div ng-show="noResultados">
-                        <i class="glyphicon glyphicon-remove"></i> No hay resultados encontrados
-                    </div>
-                </div>
-                <div class="form-group" ng-class="has-success">
-                    <label for="inputFecha">Fecha</label>
-                    <p class="input-group">
-                        <input id="inputFecha" type="text" class="form-control" uib-datepicker-popup="dd-MM-yyyy" ng-model="dt" is-open="popup1.opened" min-date="minDate" max-date="maxDate" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Cerrar" clear-text="Limpiar" current-text="Hoy" alt-input-formats="altInputFormats" format-day-header="EEE" format-day-title="MM/yyyy" show-weeks="false" format-month="MM"/>
-                        <span class="input-group-btn">
-                            <button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
-                        </span>
-                    </p>
+            <h4>Datos</h4>
+            <br>
+            <div class="form-group">
+                <label for="inputCliente">Cliente</label>
+                <input id="inputCliente" type="text" ng-model="venta.cliente" placeholder="Cliente" name="cliente" uib-typeahead="cliente.nif for cliente in obtenerClientes($viewValue)" typeahead-loading="cargandoClientes" typeahead-no-results="noResultadosCliente" class="form-control" typeahead-on-select="onSelectCliente($item, $model, $label)">
+                <i ng-show="cargandoClientes" class="glyphicon glyphicon-refresh"></i>
+                <div ng-show="noResultadosCliente">
+                    <i class="glyphicon glyphicon-remove"></i> No hay resultados encontrados
                 </div>
             </div>
+            <div class="form-group">
+                <label for="inputFecha">Fecha</label>
+                <p class="input-group">
+                    <input id="inputFecha" type="text" class="form-control" uib-datepicker-popup="dd-MM-yyyy" ng-model="dt" is-open="popup1.opened" min-date="minDate" max-date="maxDate" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Cerrar" clear-text="Limpiar" current-text="Hoy" alt-input-formats="altInputFormats" format-day-header="EEE" format-day-title="MM/yyyy" show-weeks="false" format-month="MM"/>
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </p>
+            </div>
             <hr>
-            <div class="panel panel-primary">
-                <div class="panel-body">
-                    <table class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th>Id detalle</th>
-                            <th>Nombre producto</th>
-                            <th>Precio producto</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr ng-repeat="detalleVenta in detalles">
-                            <td>{{detalleVenta.detalleVentaId}}</td>
-                            <td>{{detalleVenta.producto.nombre}}</td>
-                            <td>{{detalleVenta.cantidad}}</td>
-                            <td><a class="btn" href="" ng-click="prepararEliminarDetalleVenta(detalleVenta)"><i class="glyphicon glyphicon-trash"></i></a></td>
-                        </tr>
-                        </tbody>
-                    </table>
+            <h4>Detalles</h4>
+            <br>
+            <div class="form-group">
+                <label for="inputProducto">Producto</label>
+                <input id="inputProducto" type="text" ng-model="detalleTemporal.producto" placeholder="Producto" name="producto" uib-typeahead="producto.referencia for producto in obtenerProductos($viewValue)" typeahead-loading="cargandoProductos" typeahead-no-results="noResultadosProducto" class="form-control" typeahead-on-select="onSelectProducto($item, $model, $label)">
+                <i ng-show="cargandoProductos" class="glyphicon glyphicon-refresh"></i>
+                <div ng-show="noResultadosProducto">
+                    <i class="glyphicon glyphicon-remove"></i> No hay resultados encontrados
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputCantidad">Cantidad</label>
+                <input id="inputCantidad" type="number" class="form-control" placeholder="Cantidad" name="cantidad" ng-model="detalleTemporal.cantidad">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-success" ng-disabled="ventasForm.$invalid" ng-click="guardarDetalle()">Añadir detalle</button>
+            </div>
+            <div class="form-group">
+                <div class="panel panel-primary">
+                    <div class="panel-body">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Id detalle</th>
+                                <th>Nombre producto</th>
+                                <th>Precio producto</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="detalleVenta in venta.detalles">
+                                <td>{{detalleVenta.detalleVentaId}}</td>
+                                <td>{{detalleVenta.producto.nombre}}</td>
+                                <td>{{detalleVenta.cantidad}}</td>
+                                <td><a class="btn" href="" ng-click="prepararEliminarDetalleVenta(detalleVenta)"><i class="glyphicon glyphicon-trash"></i></a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </form>
@@ -55,6 +77,18 @@
         </div>
         <div class="modal-body">
             <p>¿Estás seguro de querer borrar la venta?</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" type="button" ng-click="ok()">Ok</button>
+            <button class="btn" type="button" ng-click="cancelar()">Cancelar</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="eliminarDetalleModalContent.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Eliminar detalle</h3>
+        </div>
+        <div class="modal-body">
+            <p>¿Estás seguro de querer borrar el detalle?</p>
         </div>
         <div class="modal-footer">
             <button class="btn btn-success" type="button" ng-click="ok()">Ok</button>

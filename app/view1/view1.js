@@ -15,7 +15,8 @@ angular.module('myApp.view1', ['ngRoute'])
         $scope.prepararNuevaVenta = function () {
             $scope.venta = {
                 fechaVenta: new Date(),
-                cliente: {nif: ""}
+                cliente: {nif: ""},
+                detalles: []
             };
             $scope.abrirDetalleVenta();
         }
@@ -31,7 +32,7 @@ angular.module('myApp.view1', ['ngRoute'])
         }
 
         $scope.obtenerVentas = function () {
-            $http.get('http://192.168.1.136:8080/gestionventas/ventas')
+            $http.get('http://localhost:8080/gestionventas/ventas')
                 .success(function (data) {
                     $scope.ventas = data;
                     console.log(data);
@@ -42,7 +43,7 @@ angular.module('myApp.view1', ['ngRoute'])
         };
 
         $scope.guardarVenta = function (venta) {
-            $http.post('http://192.168.1.136:8080/gestionventas/ventas', venta)
+            $http.post('http://localhost:8080/gestionventas/ventas', venta)
                 .success(function (data) {
                     $scope.obtenerVentas();
                 })
@@ -52,7 +53,7 @@ angular.module('myApp.view1', ['ngRoute'])
         };
 
         $scope.eliminarVenta = function (ventaId) {
-            $http.delete('http://192.168.1.136:8080/gestionventas/ventas/' + ventaId)
+            $http.delete('http://localhost:8080/gestionventas/ventas/' + ventaId)
                 .success(function (data) {
                     $scope.obtenerVentas();
                 })
@@ -102,8 +103,14 @@ angular.module('myApp.view1', ['ngRoute'])
         $scope.obtenerVentas();
     }])
 
-    .controller('NuevaVentaModalInstanceCtrl', ['$scope', '$uibModalInstance', '$http', 'venta', function ($scope, $uibModalInstance, $http, venta) {
+    .controller('NuevaVentaModalInstanceCtrl', ['$scope', '$uibModal', '$uibModalInstance', '$http', 'venta', function ($scope, $uibModal, $uibModalInstance, $http, venta) {
         $scope.venta = venta;
+        $scope.detalleTemporal = {
+            producto: {
+                referencia: ""
+            },
+            cantidad: ""
+        };
 
         $scope.guardar = function () {
             $scope.venta.fechaVenta = $scope.dt.getTime();
@@ -114,24 +121,37 @@ angular.module('myApp.view1', ['ngRoute'])
             $uibModalInstance.dismiss('cancel');
         };
 
+        $scope.guardarDetalle = function () {
+            $scope.venta.detalles.push($scope.detalleTemporal);
+            $scope.detalleTemporal = {
+                producto: {
+                    referencia: ""
+                },
+                cantidad: ""
+            };
+        };
+
         $scope.obtenerClientes = function (valor) {
             return $http.get('http://192.168.1.136:8080/gestionventas/clientes', {
                 params: {nif: valor}
-            }).success(function (response) {
+            }).then(function (response) {
                 return response.data.map(function (item) {
                     return item;
                 });
             });
         };
 
-        $scope.obtenerDetallesVenta = function (ventaId) {
-            return $http.get('http://192.168.1.136:8080/gestionventas/ventas/' + ventaId + '/detalles')
-                .success(function (data) {
-                    $scope.detalles = data;
+        $scope.obtenerProductos = function (valor) {
+            return $http.get('http://192.168.1.136:8080/gestionventas/productos', {
+                params: {referencia: valor}
+            }).then(function (response) {
+                return response.data.map(function (item) {
+                    return item;
                 });
+            });
         };
 
-        $scope.onSelect = function ($item, $model, $label) {
+        $scope.onSelectCliente = function ($item, $model, $label) {
             $scope.$item = $item;
             $scope.$model = $model;
             $scope.$label = $label;
@@ -139,7 +159,38 @@ angular.module('myApp.view1', ['ngRoute'])
             $scope.venta.cliente = $scope.$item;
         };
 
-        $scope.obtenerDetallesVenta($scope.venta.ventaId);
+        $scope.onSelectProducto = function ($item, $model, $label) {
+            $scope.$item = $item;
+            $scope.$model = $model;
+            $scope.$label = $label;
+
+            $scope.detalleTemporal.producto = $scope.$item;
+        };
+
+        $scope.prepararEliminarDetalleVenta = function (detalleVenta) {
+            $scope.detalleVenta = detalleVenta;
+            $scope.abrirEliminarDetalleVenta();
+        }
+
+        $scope.abrirEliminarDetalleVenta = function () {
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'eliminarDetalleModalContent.html',
+                controller: 'EliminarDetalleModalInstanceCtrl',
+                size: 'sm',
+                resolve: {
+                    detalleVenta: function () {
+                        return $scope.detalleVenta;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (detalleVenta) {
+                var dt = $scope.venta.detalles.indexOf(detalleVenta);
+                $scope.venta.detalles.splice(dt, 1);
+            });
+        };
 
         //Componente datePicker
         $scope.today = function() {
@@ -230,6 +281,18 @@ angular.module('myApp.view1', ['ngRoute'])
 
         $scope.ok = function () {
             $uibModalInstance.close($scope.venta);
+        };
+
+        $scope.cancelar = function () {
+            $uibModalInstance.dismiss('cancel');
+        };
+    }])
+
+    .controller('EliminarDetalleModalInstanceCtrl', ['$scope', '$uibModalInstance', 'detalleVenta', function ($scope, $uibModalInstance, detalleVenta) {
+        $scope.detalleVenta = detalleVenta;
+
+        $scope.ok = function () {
+            $uibModalInstance.close($scope.detalleVenta);
         };
 
         $scope.cancelar = function () {
