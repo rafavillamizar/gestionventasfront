@@ -1,6 +1,6 @@
 <div  class="container">
   <script type="text/ng-template" id="nuevoProductoModalContent.html">
-    <form class="modal-body" role="form" name="productosForm">
+    <form class="modal-body" role="form" name="productosForm" autocomplete="off">
       <div class="form-group" ng-class="{'has-error': productosForm.nombre.$invalid, 'has-success': productosForm.nombre.$valid}">
         <label for="inputNombre">Nombre</label>
         <input id="inputNombre" type="text" class="form-control" placeholder="Nombre" name="nombre" ng-model="nombre" maxlength="150" required>

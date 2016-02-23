@@ -1,39 +1,35 @@
 <div  class="container">
   <script type="text/ng-template" id="nuevoClienteModalContent.html">
-    <form class="modal-body" role="form" name="clientesForm">
+    <form class="modal-body" role="form" name="clientesForm" autocomplete="off">
       <div class="form-group" ng-class="{'has-error': clientesForm.nif.$invalid, 'has-success': clientesForm.nif.$valid}">
         <label for="inputNif">NIF</label>
-        <input id="inputNif" type="text" class="form-control" placeholder="NIF" name="nif" ng-model="cliente.nif" required>
+        <input id="inputNif" type="text" class="form-control" placeholder="NIF" name="nif" ng-model="nif" required>
       </div>
       <div class="form-group" ng-class="{'has-error': clientesForm.nombre.$invalid, 'has-success': clientesForm.nombre.$valid}">
         <label for="inputNombre">Nombre</label>
-        <input id="inputNombre" type="text" class="form-control" placeholder="Nombre" name="nombre" ng-model="cliente.nombre" required>
+        <input id="inputNombre" type="text" class="form-control" placeholder="Nombre" name="nombre" ng-model="nombre" required>
       </div>
       <div class="form-group" ng-class="{'has-error': clientesForm.apellido1.$invalid, 'has-success': clientesForm.apellido1.$valid}">
         <label for="inputApellido1">Primer apellido</label>
-        <input id="inputApellido1" type="text" class="form-control" placeholder="Primer apellido" name="apellido1" ng-model="cliente.apellido1" required>
+        <input id="inputApellido1" type="text" class="form-control" placeholder="Primer apellido" name="apellido1" ng-model="apellido1" required>
       </div>
       <div class="form-group" ng-class="has-success">
         <label for="inputApellido2">Segundo apellido</label>
-        <input id="inputApellido2" type="text" class="form-control" placeholder="Segundo apellido" name="apellido2" ng-model="cliente.apellido2">
+        <input id="inputApellido2" type="text" class="form-control" placeholder="Segundo apellido" name="apellido2" ng-model="apellido2">
       </div>
       <div class="form-group" ng-class="has-success">
         <label for="inputEmail">Email</label>
-        <input id="inputEmail" type="email" class="form-control" placeholder="Email" name="email" ng-model="cliente.email">
+        <input id="inputEmail" type="email" class="form-control" placeholder="Email" name="email" ng-model="email">
       </div>
-      <div class="form-group" ng-class="{'has-error': clientesForm.ciudad.$invalid, 'has-success': clientesForm.ciudad.$valid}">
+      <div class="form-group" ng-class="{'has-error': !ciudadSeleccionada, 'has-success': ciudadSeleccionada}">
         <label for="inputLocalidad">Localización</label>
-        <input id="inputLocalidad" type="text" ng-model="cliente.ciudad" placeholder="Localización" name="ciudad" uib-typeahead="ciudad.nombreLocalizacion for ciudad in obtenerLocalizacion($viewValue)" typeahead-loading="cargandoLocalizaciones" typeahead-no-results="noResultados" class="form-control" typeahead-on-select="onSelect($item, $model, $label)" required>
-        <i ng-show="cargandoLocalizaciones" class="glyphicon glyphicon-refresh"></i>
-        <div ng-show="noResultados">
-          <i class="glyphicon glyphicon-remove"></i> No hay resultados encontrados
-        </div>
+        <select id="inputLocalidad" class="form-control" name="ciudad" ng-model="ciudad" ng-options="c as c.nombreLocalizacion for c in ciudades track by c.ciudadId" required ng-change="onSelect()"></select>
       </div>
       <div class="form-group" ng-class="has-success">
         <label for="inputDireccion">Direccion</label>
-        <input id="inputDireccion" type="text" class="form-control" placeholder="Dirección" name="direccion" ng-model="cliente.direccion">
+        <input id="inputDireccion" type="text" class="form-control" placeholder="Dirección" name="direccion" ng-model="direccion">
       </div>
-      <button type="submit" class="btn btn-success" ng-disabled="clientesForm.$invalid" ng-click="guardar()">Guardar</button>
+      <button type="submit" class="btn btn-success" ng-disabled="(clientesForm.$invalid || !ciudadSeleccionada)" ng-click="guardar()">Guardar</button>
       <button type="button" class="btn" ng-click="cancelar()">Cancelar</button>
     </form>
   </script>
@@ -53,30 +49,35 @@
   <hr>
   <div class="panel panel-primary">
     <div class="panel-body">
-      <table class="table table-striped">
-        <thead>
-        <tr>
-          <th>NIF</th>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Dirección</th>
-          <th>Localidad</th>
-          <th></th>
-          <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="cliente in clientes">
-          <td>{{cliente.nif}}</td>
-          <td>{{cliente.nombre}} {{cliente.apellido1}} {{cliente.apellido2}}</td>
-          <td>{{cliente.email}}</td>
-          <td>{{cliente.direccion}}</td>
-          <td>{{cliente.ciudad.nombreLocalizacion}}</td>
-          <td><a class="btn" href="" ng-click="prepararEdicionCliente(cliente)"><i class="glyphicon glyphicon-edit"></i></a></td>
-          <td><a class="btn" href="" ng-click="prepararEliminarCliente(cliente)"><i class="glyphicon glyphicon-trash"></i></a></td>
-        </tr>
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th>NIF</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Dirección</th>
+            <th>Localidad</th>
+            <th></th>
+            <th></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr ng-repeat="cliente in clientes">
+            <td class="col-xs-1 col-sm-1">{{cliente.nif}}</td>
+            <td class="col-xs-1 col-sm-3">{{cliente.nombre}} {{cliente.apellido1}} {{cliente.apellido2}}</td>
+            <td class="col-xs-1 col-sm-3">{{cliente.email}}</td>
+            <td class="col-xs-1 col-sm-4">{{cliente.direccion}}</td>
+            <td class="col-xs-1 col-sm-3">{{cliente.ciudad.nombreLocalizacion}}</td>
+            <td class="col-xs-1 col-sm-1"><a class="btn" href="" ng-click="prepararEdicionCliente(cliente)"><i class="glyphicon glyphicon-edit"></i></a></td>
+            <td class="col-xs-1 col-sm-1"><a class="btn" href="" ng-click="prepararEliminarCliente(cliente)"><i class="glyphicon glyphicon-trash"></i></a></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel-footer text-center">
+      <uib-pagination total-items="totalItems" items-per-page="5" ng-model="currentPage" max-size="5" class="pagination-sm" boundary-links="true" ng-change="cambioPaginador()" force-ellipses="true" next-text="Siguiente" previous-text="Anterior" last-text="Último" first-text="Primero"></uib-pagination>
     </div>
   </div>
   <button class="btn btn-primary pull-right" ng-click="prepararNuevoCliente()">Nuevo cliente</button>

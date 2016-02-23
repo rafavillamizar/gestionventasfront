@@ -10,10 +10,6 @@ angular.module('myApp.view3', ['ngRoute'])
     }])
 
     .controller('View3Ctrl', ['$scope', '$http', '$uibModal', function ($scope, $http, $uibModal) {
-        $scope.setPage = function (pageNo) {
-            $scope.currentPage = pageNo;
-        };
-
         $scope.totalItems = 0;
         $scope.currentPage = 1;
 
@@ -53,7 +49,7 @@ angular.module('myApp.view3', ['ngRoute'])
         $scope.guardarProducto = function (producto) {
             $http.post('http://localhost:8080/gestionventas/productos', producto)
                 .success(function (data) {
-                    $scope.obtenerProductos();
+                    $scope.obtenerProductos($scope.currentPage);
                 })
                 .error(function (data) {
                     console.log('Error:' + data);
@@ -63,7 +59,7 @@ angular.module('myApp.view3', ['ngRoute'])
         $scope.eliminarProducto = function(productoId) {
           $http.delete('http://localhost:8080/gestionventas/productos/' + productoId)
               .success(function(data) {
-                  $scope.obtenerProductos();
+                  $scope.obtenerProductos($scope.currentPage);
               })
               .error(function(data) {
                 console.log('Error:' + data);
@@ -108,7 +104,7 @@ angular.module('myApp.view3', ['ngRoute'])
             });
         };
 
-        $scope.obtenerProductos($scope.bigCurrentPage);
+        $scope.obtenerProductos($scope.currentPage);
 
         $scope.cambioPaginador = function() {
             $scope.obtenerProductos($scope.currentPage);

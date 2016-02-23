@@ -6,18 +6,14 @@
         <form class="modal-body" role="form" name="ventasForm">
             <h4>Datos</h4>
             <br>
-            <div class="form-group">
+            <div class="form-group" ng-class="{'has-error': ventasForm.cliente.$invalid, 'has-success': ventasForm.cliente.$valid}">
                 <label for="inputCliente">Cliente</label>
-                <input id="inputCliente" type="text" ng-model="venta.cliente" placeholder="Cliente" name="cliente" uib-typeahead="cliente.nif for cliente in obtenerClientes($viewValue)" typeahead-loading="cargandoClientes" typeahead-no-results="noResultadosCliente" class="form-control" typeahead-on-select="onSelectCliente($item, $model, $label)">
-                <i ng-show="cargandoClientes" class="glyphicon glyphicon-refresh"></i>
-                <div ng-show="noResultadosCliente">
-                    <i class="glyphicon glyphicon-remove"></i> No hay resultados encontrados
-                </div>
+                <select id="inputCliente" class="form-control" name="cliente" ng-model="cliente" ng-options="c as c.nombreCompleto for c in clientes track by c.clienteId" required ng-change="onSelectCliente()"></select>
             </div>
             <div class="form-group">
                 <label for="inputFecha">Fecha</label>
                 <p class="input-group">
-                    <input id="inputFecha" type="text" class="form-control" uib-datepicker-popup="dd-MM-yyyy" ng-model="dt" is-open="popup1.opened" min-date="minDate" max-date="maxDate" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Cerrar" clear-text="Limpiar" current-text="Hoy" alt-input-formats="altInputFormats" format-day-header="EEE" format-day-title="MM/yyyy" show-weeks="false" format-month="MM"/>
+                    <input id="inputFecha" type="text" class="form-control" uib-datepicker-popup="dd-MM-yyyy" ng-model="fechaVenta" is-open="popup1.opened" min-date="minDate" max-date="maxDate" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Cerrar" clear-text="Limpiar" current-text="Hoy" alt-input-formats="altInputFormats" format-day-header="EEE" format-day-title="MM/yyyy" show-weeks="false" format-month="MM"/>
                     <span class="input-group-btn">
                         <button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
                     </span>
@@ -28,15 +24,11 @@
             <br>
             <div class="form-group">
                 <label for="inputProducto">Producto</label>
-                <input id="inputProducto" type="text" ng-model="detalleTemporal.producto" placeholder="Producto" name="producto" uib-typeahead="producto.referencia for producto in obtenerProductos($viewValue)" typeahead-loading="cargandoProductos" typeahead-no-results="noResultadosProducto" class="form-control" typeahead-on-select="onSelectProducto($item, $model, $label)">
-                <i ng-show="cargandoProductos" class="glyphicon glyphicon-refresh"></i>
-                <div ng-show="noResultadosProducto">
-                    <i class="glyphicon glyphicon-remove"></i> No hay resultados encontrados
-                </div>
+                <select id="inputProducto" class="form-control" name="producto" ng-model="producto" ng-options="p as p.nombreCompleto for p in productos track by p.productoId" required ng-change="onSelectProducto()"></select>
             </div>
             <div class="form-group">
                 <label for="inputCantidad">Cantidad</label>
-                <input id="inputCantidad" type="number" class="form-control" placeholder="Cantidad" name="cantidad" ng-model="detalleTemporal.cantidad">
+                <input id="inputCantidad" type="number" class="form-control" placeholder="Cantidad" name="cantidad" ng-model="cantidad">
             </div>
             <div class="form-group">
                 <button type="submit" class="btn btn-success" ng-disabled="ventasForm.$invalid" ng-click="guardarDetalle()">Añadir detalle</button>
@@ -47,18 +39,27 @@
                         <table class="table table-striped">
                             <thead>
                             <tr>
-                                <th>Id detalle</th>
                                 <th>Nombre producto</th>
-                                <th>Precio producto</th>
+                                <th>Cantidad producto</th>
+                                <th>Precio unidad</th>
+                                <th>Precio total</th>
                                 <th></th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="detalleVenta in venta.detalles">
-                                <td>{{detalleVenta.detalleVentaId}}</td>
-                                <td>{{detalleVenta.producto.nombre}}</td>
+                            <tr ng-repeat="detalleVenta in detalles">
+                                <td>{{detalleVenta.producto.nombreCompleto}}</td>
                                 <td>{{detalleVenta.cantidad}}</td>
+                                <td>{{detalleVenta.producto.precio}}</td>
+                                <td>{{detalleVenta.producto.precio * detalleVenta.cantidad}}</td>
                                 <td><a class="btn" href="" ng-click="prepararEliminarDetalleVenta(detalleVenta)"><i class="glyphicon glyphicon-trash"></i></a></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td>Total</td>
+                                <td>{{totalPrecio}}</td>
+                                <td></td>
                             </tr>
                             </tbody>
                         </table>
@@ -99,26 +100,31 @@
     <hr>
     <div class="panel panel-primary">
         <div class="panel-body">
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Id venta</th>
-                    <th>NIF cliente</th>
-                    <th>Nombre cliente</th>
-                    <th>Fecha</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr ng-repeat="venta in ventas">
-                    <td>{{venta.ventaId}}</td>
-                    <td>{{venta.cliente.nif}}</td>
-                    <td>{{venta.cliente.nombre}} {{venta.cliente.apellido1}} {{venta.cliente.apellido2}}</td>
-                    <td>{{venta.fechaVenta | date:'dd/MM/yyyy'}}</td>
-                    <td><a class="btn" href="" ng-click="prepararEdicionVenta(venta)"><i class="glyphicon glyphicon-edit"></i></a></td>
-                    <td><a class="btn" href="" ng-click="prepararEliminarVenta(venta)"><i class="glyphicon glyphicon-trash"></i></a></td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Id venta</th>
+                        <th>NIF cliente</th>
+                        <th>Nombre cliente</th>
+                        <th>Fecha</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="venta in ventas">
+                        <td>{{venta.ventaId}}</td>
+                        <td>{{venta.cliente.nif}}</td>
+                        <td>{{venta.cliente.nombre}} {{venta.cliente.apellido1}} {{venta.cliente.apellido2}}</td>
+                        <td>{{venta.fechaVenta | date:'dd/MM/yyyy'}}</td>
+                        <td><a class="btn" href="" ng-click="prepararEdicionVenta(venta)"><i class="glyphicon glyphicon-edit"></i></a></td>
+                        <td><a class="btn" href="" ng-click="prepararEliminarVenta(venta)"><i class="glyphicon glyphicon-trash"></i></a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="panel-footer text-center">
+            <uib-pagination total-items="totalItems" items-per-page="5" ng-model="currentPage" max-size="5" class="pagination-sm" boundary-links="true" ng-change="cambioPaginador()" force-ellipses="true" next-text="Siguiente" previous-text="Anterior" last-text="Último" first-text="Primero"></uib-pagination>
         </div>
     </div>
     <button class="btn btn-primary pull-right" ng-click="prepararNuevaVenta()">Nueva venta</button>

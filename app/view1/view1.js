@@ -10,12 +10,15 @@ angular.module('myApp.view1', ['ngRoute'])
     }])
 
     .controller('View1Ctrl', ['$scope', '$http', '$uibModal', function ($scope, $http, $uibModal) {
+        $scope.totalItems = 0;
+        $scope.currentPage = 1;
+
         $scope.venta = {};
 
         $scope.prepararNuevaVenta = function () {
             $scope.venta = {
                 fechaVenta: new Date(),
-                cliente: {nif: ""},
+                cliente: null,
                 detalles: []
             };
             $scope.abrirDetalleVenta();
@@ -31,21 +34,20 @@ angular.module('myApp.view1', ['ngRoute'])
             $scope.abrirEliminarVenta();
         }
 
-        $scope.obtenerVentas = function () {
-            $http.get('http://localhost:8080/gestionventas/ventas')
-                .success(function (data) {
-                    $scope.ventas = data;
-                    console.log(data);
-                })
-                .error(function (data) {
-                    console.log('Error: ' + data);
-                });
+        $scope.obtenerVentas = function (valor) {
+            $http.get('http://localhost:8080/gestionventas/ventas', {
+                params: {numeroPagina: valor}
+            }).then(function (response) {
+                $scope.totalItems = response.data.totalElementos;
+                $scope.currentPage = response.data.numeroPagina;
+                $scope.ventas = response.data.resultado;
+            });
         };
 
         $scope.guardarVenta = function (venta) {
             $http.post('http://localhost:8080/gestionventas/ventas', venta)
                 .success(function (data) {
-                    $scope.obtenerVentas();
+                    $scope.obtenerVentas($scope.currentPage);
                 })
                 .error(function (data) {
                     console.log('Error:' + data);
@@ -55,7 +57,7 @@ angular.module('myApp.view1', ['ngRoute'])
         $scope.eliminarVenta = function (ventaId) {
             $http.delete('http://localhost:8080/gestionventas/ventas/' + ventaId)
                 .success(function (data) {
-                    $scope.obtenerVentas();
+                    $scope.obtenerVentas($scope.currentPage);
                 })
                 .error(function (data) {
                     console.log('Error:' + data);
@@ -100,20 +102,32 @@ angular.module('myApp.view1', ['ngRoute'])
             });
         };
 
-        $scope.obtenerVentas();
+        $scope.obtenerVentas($scope.currentPage);
+
+        $scope.cambioPaginador = function() {
+            $scope.obtenerVentas($scope.currentPage);
+        };
     }])
 
     .controller('NuevaVentaModalInstanceCtrl', ['$scope', '$uibModal', '$uibModalInstance', '$http', 'venta', function ($scope, $uibModal, $uibModalInstance, $http, venta) {
+        $scope.clienteSeleccionada = false;
+
         $scope.venta = venta;
-        $scope.detalleTemporal = {
-            producto: {
-                referencia: ""
-            },
-            cantidad: ""
-        };
+
+        $scope.fechaVenta = venta.fechaVenta;
+        $scope.cliente = venta.cliente;
+        $scope.detalles = (venta.detalles == null) ? [] : venta.detalles;
+
+        $scope.productoSeleccionado = false;
+
+        $scope.producto = null;
+        $scope.cantidad = null;
 
         $scope.guardar = function () {
-            $scope.venta.fechaVenta = $scope.dt.getTime();
+            $scope.venta.fechaVenta = $scope.fechaVenta;
+            $scope.venta.cliente = $scope.cliente;
+            $scope.venta.detalles = $scope.detalles;
+
             $uibModalInstance.close($scope.venta);
         };
 
@@ -122,53 +136,57 @@ angular.module('myApp.view1', ['ngRoute'])
         };
 
         $scope.guardarDetalle = function () {
-            $scope.venta.detalles.push($scope.detalleTemporal);
             $scope.detalleTemporal = {
-                producto: {
-                    referencia: ""
-                },
-                cantidad: ""
+                producto: $scope.producto,
+                cantidad: $scope.cantidad
             };
+            $scope.detalles.push($scope.detalleTemporal);
+            $scope.producto = null;
+            $scope.cantidad = null;
+
+            $scope.calcularTotal();
         };
 
-        $scope.obtenerClientes = function (valor) {
-            return $http.get('http://192.168.1.136:8080/gestionventas/clientes', {
-                params: {nif: valor}
-            }).then(function (response) {
-                return response.data.map(function (item) {
-                    return item;
-                });
+        $scope.obtenerClientes = function () {
+            return $http.get('http://localhost:8080/gestionventas/clientes')
+                .then(function (response) {
+                $scope.clientes = response.data.resultado;
             });
         };
 
-        $scope.obtenerProductos = function (valor) {
-            return $http.get('http://192.168.1.136:8080/gestionventas/productos', {
-                params: {referencia: valor}
-            }).then(function (response) {
-                return response.data.map(function (item) {
-                    return item;
-                });
+        $scope.obtenerProductos = function () {
+            return $http.get('http://localhost:8080/gestionventas/productos')
+                .then(function (response) {
+                $scope.productos = response.data.resultado;
             });
         };
 
-        $scope.onSelectCliente = function ($item, $model, $label) {
-            $scope.$item = $item;
-            $scope.$model = $model;
-            $scope.$label = $label;
-
-            $scope.venta.cliente = $scope.$item;
+        $scope.calcularTotal = function () {
+            if(venta != null && venta.detalles != null && venta.detalles.length > 0) {
+                var index = 0;
+                $scope.totalPrecio = 0;
+                for (index; index < venta.detalles.length; ++index) {
+                    $scope.totalPrecio += (venta.detalles[index].producto.precio * venta.detalles[index].cantidad);
+                }
+            }
         };
 
-        $scope.onSelectProducto = function ($item, $model, $label) {
-            $scope.$item = $item;
-            $scope.$model = $model;
-            $scope.$label = $label;
-
-            $scope.detalleTemporal.producto = $scope.$item;
+        $scope.onSelectCliente = function () {
+            if($scope.cliente != null)
+                $scope.clienteSeleccionada = true;
         };
+
+        $scope.onSelectProducto = function () {
+            if($scope.producto != null)
+                $scope.productoSeleccionado = true;
+        };
+
+        $scope.obtenerClientes();
+        $scope.obtenerProductos();
+        $scope.calcularTotal();
 
         $scope.prepararEliminarDetalleVenta = function (detalleVenta) {
-            $scope.detalleVenta = detalleVenta;
+            $scope.detalleTemporal = detalleVenta;
             $scope.abrirEliminarDetalleVenta();
         }
 
@@ -181,7 +199,7 @@ angular.module('myApp.view1', ['ngRoute'])
                 size: 'sm',
                 resolve: {
                     detalleVenta: function () {
-                        return $scope.detalleVenta;
+                        return $scope.detalleTemporal;
                     }
                 }
             });
@@ -194,12 +212,12 @@ angular.module('myApp.view1', ['ngRoute'])
 
         //Componente datePicker
         $scope.today = function() {
-            $scope.dt = new Date();
+            $scope.fechaVenta = new Date();
         };
         $scope.today();
 
         $scope.clear = function() {
-            $scope.dt = null;
+            $scope.fechaVenta = null;
         };
 
         // Disable weekend selection
@@ -223,7 +241,7 @@ angular.module('myApp.view1', ['ngRoute'])
         };
 
         $scope.setDate = function(year, month, day) {
-            $scope.dt = new Date(year, month, day);
+            $scope.fechaVenta = new Date(year, month, day);
         };
 
         $scope.dateOptions = {
