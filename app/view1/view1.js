@@ -119,6 +119,7 @@ angular.module('myApp.view1', ['ngRoute'])
         $scope.detalles = (venta.detalles == null) ? [] : venta.detalles;
 
         $scope.productoSeleccionado = false;
+        $scope.cantidadSeleccionada = false;
 
         $scope.producto = null;
         $scope.cantidad = null;
@@ -143,6 +144,9 @@ angular.module('myApp.view1', ['ngRoute'])
             $scope.detalles.push($scope.detalleTemporal);
             $scope.producto = null;
             $scope.cantidad = null;
+
+            $scope.productoSeleccionado = false;
+            $scope.cantidadSeleccionada = false;
 
             $scope.calcularTotal();
         };
@@ -179,6 +183,11 @@ angular.module('myApp.view1', ['ngRoute'])
         $scope.onSelectProducto = function () {
             if($scope.producto != null)
                 $scope.productoSeleccionado = true;
+        };
+
+        $scope.onSelectCantidad = function () {
+            if($scope.cantidad != null)
+                $scope.cantidadSeleccionada = true;
         };
 
         $scope.obtenerClientes();
