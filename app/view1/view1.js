@@ -194,6 +194,9 @@ angular.module('myApp.view1', ['ngRoute'])
         $scope.obtenerProductos();
         $scope.calcularTotal();
 
+        if($scope.cliente != null)
+            $scope.clienteSeleccionada = true;
+
         $scope.prepararEliminarDetalleVenta = function (detalleVenta) {
             $scope.detalleTemporal = detalleVenta;
             $scope.abrirEliminarDetalleVenta();
