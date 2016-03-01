@@ -1,0 +1,41 @@
+<div  class="container">
+  <h1>Informes</h1>
+  <hr>
+  <form class="form-inline">
+    <div class="form-group">
+      <label for="inputMes">Mes</label>
+      <select id="inputMes" class="form-control" name="mes" ng-model="mes" ng-options="m as m.nombre for m in meses  track by m.nombre"></select>
+    </div>
+    <div class="form-group">
+      <label for="inputAnio">Año</label>
+      <select id="inputAnio" class="form-control" name="anio" ng-model="anio" ng-options="a as a for a in anios track by a"></select>
+    </div>
+    <button type="submit" class="btn btn-default" ng-click="obtenerInforme(currentPage)">Buscar</button>
+  </form>
+  <hr>
+  <div class="panel panel-primary">
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Unidades vendidas</th>
+            <th>Ventas mes</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr ng-repeat="informe in informes">
+            <td>{{informe.nombreCompleto}}</td>
+            <td>{{informe.unidadesVendidas}}</td>
+            <td>{{informe.ventasMes}}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel-footer text-center">
+      <uib-pagination total-items="totalItems" items-per-page="5" ng-model="currentPage" max-size="5" class="pagination-sm" boundary-links="true" ng-change="cambioPaginador()" force-ellipses="true" next-text="Siguiente" previous-text="Anterior" last-text="Último" first-text="Primero"></uib-pagination>
+    </div>
+  </div>
+</div>
