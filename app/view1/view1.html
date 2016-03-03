@@ -36,33 +36,36 @@
             <div class="form-group">
                 <div class="panel panel-primary">
                     <div class="panel-body">
-                        <table class="table table-striped">
-                            <thead>
-                            <tr>
-                                <th>Nombre producto</th>
-                                <th>Cantidad producto</th>
-                                <th>Precio unidad</th>
-                                <th>Precio total</th>
-                                <th></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr ng-repeat="detalleVenta in detalles">
-                                <td>{{detalleVenta.producto.nombreCompleto}}</td>
-                                <td>{{detalleVenta.cantidad}}</td>
-                                <td>{{detalleVenta.producto.precio}}</td>
-                                <td>{{detalleVenta.producto.precio * detalleVenta.cantidad}}</td>
-                                <td><a class="btn" href="" ng-click="prepararEliminarDetalleVenta(detalleVenta)"><i class="glyphicon glyphicon-trash"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td>Total</td>
-                                <td>{{totalPrecio | number:2}}</td>
-                                <td></td>
-                            </tr>
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th>Nombre producto</th>
+                                    <th>Cantidad producto</th>
+                                    <th>Precio unidad</th>
+                                    <th>Precio total</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-repeat="detalleVenta in detalles">
+                                    <td>{{detalleVenta.producto.nombreCompleto}}</td>
+                                    <td>{{detalleVenta.cantidad}}</td>
+                                    <td>{{detalleVenta.producto.precio}}</td>
+                                    <td>{{detalleVenta.producto.precio * detalleVenta.cantidad}}</td>
+                                    <td><a class="btn" href="" ng-click="prepararEliminarDetalleVenta(detalleVenta)"><i class="glyphicon glyphicon-trash"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td>Total</td>
+                                    <td>{{totalPrecio | number:2}}</td>
+                                    <td></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
